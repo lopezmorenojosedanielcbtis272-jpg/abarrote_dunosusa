@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Abarrote Dunososa - Todo a un buen precio</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-top">
+                <h1>Abarrote Dunososa</h1>
+                <p class="slogan">Todo a un buen precio</p>
+                
+                <div class="user-actions">
+                    {% if session.usuario %}
+                        <span class="welcome">Bienvenido, {{ session.usuario }}</span>
+                        <a href="{{ url_for('logout') }}" class="btn-logout">Cerrar Sesión</a>
+                        <a href="{{ url_for('ver_carrito') }}" class="btn-carrito">Carrito 🛒</a>
+                    {% else %}
+                        <a href="{{ url_for('registro') }}" class="btn-registro">REGISTRATE</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- SIN MENSAJES FLASH POR AHORA -->
+    {% if error %}
+    <div class="error-message">{{ error }}</div>
+    {% endif %}
+
+    <main class="container">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Abarrote Dunososa - Todo a un buen precio</p>
+        </div>
+    </footer>
+</body>
+</html>
