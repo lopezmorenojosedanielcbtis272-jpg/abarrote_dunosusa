@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, session
 from flask_pymongo import PyMongo
+from pymongo import MongoClient  # Add this import
 from datetime import datetime
 import os
 
@@ -7,8 +8,6 @@ app = Flask(__name__)
 app.secret_key = os.environ.get("FLASK_SECRET", "dev-secret")
 
 MONGO_URI = os.environ.get("MONGO_URI", "mongodb+srv://lopezmorenojosedanielcbtis272_db_user:admin123@cluster0.ajwpjn1.mongodb.net/abarrote_dunososa?retryWrites=true&w=majority")
-client = MongoClient(MONGO_URI)
-db = client.get_default_database()
 
 # Configuración para imágenes
 app.config['UPLOAD_FOLDER'] = 'static/img'
@@ -16,13 +15,20 @@ app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'gif'}
 
 # Inicializar MongoDB
 try:
+    # Remove the direct MongoClient usage and use PyMongo instead
+    app.config["MONGO_URI"] = MONGO_URI
     mongo = PyMongo(app)
     mongo.db.command('ping')
     print("✅ Conectado a MongoDB Atlas exitosamente")
 except Exception as e:
     print(f"❌ Error conectando a MongoDB Atlas: {e}")
+    # Fallback to local MongoDB
     app.config["MONGO_URI"] = "mongodb://localhost:27017/abarrote_dunososa"
     mongo = PyMongo(app)
+
+# Remove these lines as they're causing the error:
+# client = MongoClient(MONGO_URI)
+# db = client.get_default_database()
 
 # Datos de productos
 productos = {
@@ -245,5 +251,3 @@ def buscar():
 if __name__ == '__main__':
     init_database()
     app.run(debug=True)
-
-
