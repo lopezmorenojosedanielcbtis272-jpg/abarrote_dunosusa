@@ -20,7 +20,7 @@ except Exception as e:
 # Datos de productos
 productos = {
     "bebidas": [
-        {"id": 1, "nombre": "JUGOS", "precio": 15.50, "imagen": "jugos.webp", "categoria": "bebidas"},
+        {"id": 1, "nombre": "JUGOS", "precio": 15.50, "imagen": "https://chefmart.com.mx/cdn/shop/files/DURAZNO250ML_1600x.png?v=1721775215", "categoria": "bebidas"},
         {"id": 2, "nombre": "COCACOLA", "precio": 18.00, "imagen": "coca.jpg", "categoria": "bebidas"},
         {"id": 3, "nombre": "FANTA", "precio": 16.50, "imagen": "fanta.jpg", "categoria": "bebidas"}
     ],
@@ -454,4 +454,5 @@ def procesar_pago():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
 
