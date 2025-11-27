@@ -108,12 +108,7 @@ def user_actions():
 @app.route('/')
 def index():
     return html_header('Abarrote Dunososa - Inicio') + user_actions() + f'''
-            <div class="success">
-                <h2>🎉 ¡Aplicación funcionando correctamente!</h2>
-                <p>✅ MongoDB Atlas conectado</p>
-                <p>🚀 Desplegado en Render</p>
-                <p>🔗 URL: https://abarrote-dunosusa.onrender.com</p>
-            </div>
+            
 
             <div class="categoria">
                 <h2 class="categoria-titulo">🥤 BEBIDAS</h2>
@@ -459,3 +454,4 @@ def procesar_pago():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
