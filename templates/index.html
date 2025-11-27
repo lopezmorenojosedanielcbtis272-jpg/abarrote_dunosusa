@@ -1,134 +1,91 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <!-- Promoción de registro -->
-    {% if not session.usuario %}
-    <div class="promo-registro">
-        <h2>¡Para ver nuestros precios especiales, regístrate aquí!</h2>
-        <a href="{{ url_for('registro') }}" class="btn-registro-grande">REGISTRATE AQUÍ!!!</a>
-    </div>
-    {% endif %}
-
-    <!-- Área de búsqueda -->
-    <div class="search-area">
-        <form action="{{ url_for('buscar') }}" method="post" class="search-form">
-            <input type="text" name="busqueda" placeholder="Buscar productos..." class="search-input" 
-                   value="{{ busqueda if busqueda else '' }}">
-            <button type="submit" class="search-btn">Buscar</button>
+<!-- Barra de búsqueda -->
+<div class="row mb-4">
+    <div class="col-md-6 mx-auto">
+        <form action="{{ url_for('buscar') }}" method="POST" class="d-flex">
+            <input type="text" name="busqueda" class="form-control me-2" placeholder="Buscar productos..." 
+                   value="{{ busqueda if busqueda }}">
+            <button type="submit" class="btn btn-outline-primary">Buscar</button>
         </form>
     </div>
+</div>
 
-    <!-- Mostrar resultados de búsqueda o todos los productos -->
-    {% if busqueda %}
-        <div class="resultados-busqueda">
-            <h2>Resultados para "{{ busqueda }}"</h2>
-            {% if productos.bebidas or productos.detergentes or productos.sabritas %}
-                <p>Se encontraron productos</p>
-            {% else %}
-                <p>No se encontraron productos</p>
-            {% endif %}
-        </div>
-    {% endif %}
-
-    <!-- Categorías de productos -->
-    <div class="categorias">
-        <!-- BEBIDAS -->
-        <div class="categoria">
-            <h2 class="categoria-titulo">BEBIDAS!</h2>
-            <div class="productos-grid">
-                {% for producto in productos.bebidas %}
-                <div class="producto-card">
-                    <div class="producto-imagen">
-                        <img src="{{ url_for('static', filename='img/' + producto.imagen) }}" 
-                             alt="{{ producto.nombre }}"
-                             onerror="this.onerror=null; this.src='{{ url_for('static', filename='img/placeholder.jpg') }}'">
-                    </div>
-                    <h3 class="producto-nombre">{{ producto.nombre }}</h3>
-                    <p class="producto-precio">${{ "%.2f"|format(producto.precio) }}</p>
-                    
-                    {% if session.usuario %}
-                    <form action="{{ url_for('agregar_carrito') }}" method="post" class="form-agregar">
-                        <input type="hidden" name="producto_id" value="{{ producto.id }}">
-                        <div class="cantidad-container">
-                            <label>Cantidad:</label>
-                            <input type="number" name="cantidad" value="1" min="1" class="cantidad-input">
-                        </div>
-                        <button type="submit" class="btn-agregar">Agregar al Carrito</button>
-                    </form>
-                    {% else %}
-                    <p class="registro-requerido">
-                        <a href="{{ url_for('registro') }}">Regístrate para comprar</a>
-                    </p>
-                    {% endif %}
-                </div>
-                {% endfor %}
+<!-- Formulario de login (solo si no hay usuario logueado) -->
+{% if not usuario %}
+<div class="row mb-4">
+    <div class="col-md-6 mx-auto">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Iniciar Sesión</h5>
             </div>
-        </div>
-
-        <!-- DETERGENTES -->
-        <div class="categoria">
-            <h2 class="categoria-titulo">DETERGENTES!!</h2>
-            <div class="productos-grid">
-                {% for producto in productos.detergentes %}
-                <div class="producto-card">
-                    <div class="producto-imagen">
-                        <img src="{{ url_for('static', filename='img/' + producto.imagen) }}" 
-                             alt="{{ producto.nombre }}"
-                             onerror="this.onerror=null; this.src='{{ url_for('static', filename='img/placeholder.jpg') }}'">
+            <div class="card-body">
+                <form action="{{ url_for('login') }}" method="POST">
+                    <div class="mb-3">
+                        <input type="email" name="email" class="form-control" placeholder="Email" required>
                     </div>
-                    <h3 class="producto-nombre">{{ producto.nombre }}</h3>
-                    <p class="producto-precio">${{ "%.2f"|format(producto.precio) }}</p>
-                    
-                    {% if session.usuario %}
-                    <form action="{{ url_for('agregar_carrito') }}" method="post" class="form-agregar">
-                        <input type="hidden" name="producto_id" value="{{ producto.id }}">
-                        <div class="cantidad-container">
-                            <label>Cantidad:</label>
-                            <input type="number" name="cantidad" value="1" min="1" class="cantidad-input">
-                        </div>
-                        <button type="submit" class="btn-agregar">Agregar al Carrito</button>
-                    </form>
-                    {% else %}
-                    <p class="registro-requerido">
-                        <a href="{{ url_for('registro') }}">Regístrate para comprar</a>
-                    </p>
-                    {% endif %}
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-
-        <!-- SABRITAS -->
-        <div class="categoria">
-            <h2 class="categoria-titulo">SABRITAS!</h2>
-            <div class="productos-grid">
-                {% for producto in productos.sabritas %}
-                <div class="producto-card">
-                    <div class="producto-imagen">
-                        <img src="{{ url_for('static', filename='img/' + producto.imagen) }}" 
-                             alt="{{ producto.nombre }}"
-                             onerror="this.onerror=null; this.src='{{ url_for('static', filename='img/placeholder.jpg') }}'">
+                    <div class="mb-3">
+                        <input type="password" name="password" class="form-control" placeholder="Contraseña" required>
                     </div>
-                    <h3 class="producto-nombre">{{ producto.nombre }}</h3>
-                    <p class="producto-precio">${{ "%.2f"|format(producto.precio) }}</p>
-                    
-                    {% if session.usuario %}
-                    <form action="{{ url_for('agregar_carrito') }}" method="post" class="form-agregar">
-                        <input type="hidden" name="producto_id" value="{{ producto.id }}">
-                        <div class="cantidad-container">
-                            <label>Cantidad:</label>
-                            <input type="number" name="cantidad" value="1" min="1" class="cantidad-input">
-                        </div>
-                        <button type="submit" class="btn-agregar">Agregar al Carrito</button>
-                    </form>
-                    {% else %}
-                    <p class="registro-requerido">
-                        <a href="{{ url_for('registro') }}">Regístrate para comprar</a>
-                    </p>
-                    {% endif %}
-                </div>
-                {% endfor %}
+                    <button type="submit" class="btn btn-primary w-100">Iniciar Sesión</button>
+                </form>
+                {% if error %}
+                    <div class="alert alert-danger mt-3">{{ error }}</div>
+                {% endif %}
             </div>
         </div>
     </div>
+</div>
+{% endif %}
+
+<!-- Productos por categoría -->
+{% for categoria, productos_cat in productos.items() if productos_cat %}
+<div class="row mb-5">
+    <div class="col-12">
+        <h2 class="text-capitalize mb-4">{{ categoria }}</h2>
+    </div>
+    
+    {% for producto in productos_cat %}
+    <div class="col-md-4 mb-4">
+        <div class="card producto-card h-100">
+            <img src="{{ url_for('static', filename='img/' + producto.imagen) }}" 
+                 class="card-img-top" alt="{{ producto.nombre }}" 
+                 style="height: 200px; object-fit: cover;" 
+                 onerror="this.src='https://via.placeholder.com/300x200?text=Imagen+No+Disponible'">
+            <div class="card-body d-flex flex-column">
+                <h5 class="card-title">{{ producto.nombre }}</h5>
+                <p class="card-text text-success fw-bold">${{ "%.2f"|format(producto.precio) }} MXN</p>
+                
+                {% if usuario %}
+                <form action="{{ url_for('agregar_carrito') }}" method="POST" class="mt-auto">
+                    <input type="hidden" name="producto_id" value="{{ producto.id }}">
+                    <div class="input-group mb-2">
+                        <input type="number" name="cantidad" class="form-control" value="1" min="1" max="10">
+                        <button type="submit" class="btn btn-primary">Agregar</button>
+                    </div>
+                </form>
+                {% else %}
+                <div class="mt-auto">
+                    <a href="{{ url_for('registro') }}" class="btn btn-outline-primary w-100">
+                        Inicia sesión para comprar
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endfor %}
+
+{% if busqueda and not productos.bebidas and not productos.detergentes and not productos.sabritas %}
+<div class="row">
+    <div class="col-12 text-center">
+        <div class="alert alert-warning">
+            No se encontraron productos para "{{ busqueda }}"
+        </div>
+    </div>
+</div>
+{% endif %}
 {% endblock %}
