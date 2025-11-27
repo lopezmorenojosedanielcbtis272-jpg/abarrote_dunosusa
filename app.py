@@ -10,7 +10,6 @@ MONGO_URI = os.environ.get("MONGO_URI", "mongodb+srv://lopezmorenojosedanielcbti
 client = MongoClient(MONGO_URI)
 db = client.get_default_database()
 
-}
 # Configuración para imágenes
 app.config['UPLOAD_FOLDER'] = 'static/img'
 app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'gif'}
@@ -246,4 +245,5 @@ def buscar():
 if __name__ == '__main__':
     init_database()
     app.run(debug=True)
+
 
