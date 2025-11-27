@@ -4,11 +4,13 @@ from datetime import datetime
 import os
 
 app = Flask(__name__)
-app.secret_key = 'nueva_clave_secreta_123'
+app.secret_key = os.environ.get("FLASK_SECRET", "dev-secret")
 
-# CONFIGURACIÓN MONGODB ATLAS
-app.config["MONGO_URI"] = "mongodb+srv://lopezmorenojosedanielcbtis272_db_user:admin123@cluster0.ajwpjn1.mongodb.net/abarrote_dunososa?retryWrites=true&w=majority"
+MONGO_URI = os.environ.get("MONGO_URI", "mongodb+srv://lopezmorenojosedanielcbtis272_db_user:admin123@cluster0.ajwpjn1.mongodb.net/abarrote_dunososa?retryWrites=true&w=majority")
+client = MongoClient(MONGO_URI)
+db = client.get_default_database()
 
+}
 # Configuración para imágenes
 app.config['UPLOAD_FOLDER'] = 'static/img'
 app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'gif'}
@@ -244,3 +246,4 @@ def buscar():
 if __name__ == '__main__':
     init_database()
     app.run(debug=True)
+
