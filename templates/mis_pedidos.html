@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="pedidos-container">
+    <h2>Mis Pedidos</h2>
+    
+    {% if pedidos %}
+        {% for pedido in pedidos %}
+        <div class="pedido-card">
+            <div class="pedido-header">
+                <h3>Pedido: {{ pedido.numero_pedido }}</h3>
+                <span class="pedido-fecha">{{ pedido.fecha_pedido.strftime('%d/%m/%Y %H:%M') }}</span>
+            </div>
+            <div class="pedido-body">
+                <p><strong>Total:</strong> ${{ "%.2f"|format(pedido.total) }}</p>
+                <p><strong>Estado:</strong> <span class="estado-completado">{{ pedido.estado }}</span></p>
+                <p><strong>Productos:</strong> {{ pedido.productos|length }} items</p>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="no-pedidos">
+            <p>No tienes pedidos realizados.</p>
+            <a href="{{ url_for('index') }}" class="btn-seguir-comprando">Realizar mi primer pedido</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

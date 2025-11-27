@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="database-status">
+    <h2>Estado de la Base de Datos - MongoDB Atlas</h2>
+    
+    <div class="stats-grid">
+        <div class="stat-card">
+            <h3>👥 Usuarios Registrados</h3>
+            <p class="stat-number">{{ stats.usuarios }}</p>
+        </div>
+        <div class="stat-card">
+            <h3>📦 Pedidos Realizados</h3>
+            <p class="stat-number">{{ stats.pedidos }}</p>
+        </div>
+        <div class="stat-card">
+            <h3>💰 Total en Ventas</h3>
+            <p class="stat-number">${{ "%.2f"|format(stats.total_ventas) }}</p>
+        </div>
+    </div>
+
+    <h3>Últimos Pedidos</h3>
+    {% if ultimos_pedidos %}
+        <div class="pedidos-list">
+            {% for pedido in ultimos_pedidos %}
+            <div class="pedido-item">
+                <strong>{{ pedido.numero_pedido }}</strong> - 
+                ${{ "%.2f"|format(pedido.total) }} - 
+                {{ pedido.fecha_pedido.strftime('%d/%m/%Y %H:%M') }}
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>No hay pedidos registrados.</p>
+    {% endif %}
+</div>
+{% endblock %}

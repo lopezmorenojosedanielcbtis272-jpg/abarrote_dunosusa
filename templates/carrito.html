@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="carrito-container">
+    <h2>Tu Carrito de Compras</h2>
+    
+    {% if carrito %}
+    <div class="carrito-items">
+        <table class="tabla-carrito">
+            <thead>
+                <tr>
+                    <th>Producto</th>
+                    <th>Precio Unitario</th>
+                    <th>Cantidad</th>
+                    <th>Subtotal</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in carrito %}
+                <tr>
+                    <td class="producto-info">
+                        <div class="producto-carrito">
+                            <img src="{{ url_for('static', filename='img/' + item.imagen) }}" 
+                                 alt="{{ item.nombre }}" 
+                                 class="imagen-carrito"
+                                 onerror="this.onerror=null; this.src='{{ url_for('static', filename='img/placeholder.jpg') }}'">
+                            <span class="nombre-producto">{{ item.nombre }}</span>
+                        </div>
+                    </td>
+                    <td class="precio-unitario">${{ "%.2f"|format(item.precio) }}</td>
+                    <td class="cantidad-cell">
+                        <form action="{{ url_for('actualizar_carrito') }}" method="post" class="form-cantidad">
+                            <input type="hidden" name="producto_id" value="{{ item.id }}">
+                            <input type="number" name="cantidad" value="{{ item.cantidad }}" min="1" class="cantidad-input">
+                            <button type="submit" class="btn-actualizar">Actualizar</button>
+                        </form>
+                    </td>
+                    <td class="subtotal">${{ "%.2f"|format(item.precio * item.cantidad) }}</td>
+                    <td class="acciones">
+                        <form action="{{ url_for('actualizar_carrito') }}" method="post">
+                            <input type="hidden" name="producto_id" value="{{ item.id }}">
+                            <input type="hidden" name="cantidad" value="0">
+                            <button type="submit" class="btn-eliminar">Eliminar</button>
+                        </form>
+                    </td>
+                </tr>
+           
+                {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr class="total-row">
+                    <td colspan="3" class="total-label"><strong>Total del Carrito:</strong></td>
+                    <td colspan="2" class="total-precio"><strong>${{ "%.2f"|format(total) }}</strong></td>
+                </tr>
+            </tfoot>
+        </table>
+        
+        <div class="acciones-carrito">
+            <a href="{{ url_for('index') }}" class="btn-seguir-comprando">← Seguir Comprando</a>
+            <a href="{{ url_for('vaciar_carrito') }}" class="btn-vaciar" onclick="return confirm('¿Estás seguro de vaciar el carrito?')">Vaciar Carrito</a>
+            <form action="{{ url_for('procesar_pago') }}" method="post">
+    <button type="submit" class="btn-pagar">Proceder al Pago</button>
+</form>
+    </div>
+    {% else %}
+    <div class="carrito-vacio">
+        <div class="empty-cart-icon">🛒</div>
+        <h3>Tu carrito está vacío</h3>
+        <p>¡Agrega algunos productos increíbles!</p>
+        <a href="{{ url_for('index') }}" class="btn-seguir-comprando">Ir a Comprar</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+
+

@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="confirmacion-container">
+    <div class="confirmacion-card">
+        <div class="checkmark-container">
+            <div class="checkmark">✓</div>
+        </div>
+        
+        <h2>¡Pago Realizado Exitosamente!</h2>
+        <p class="confirmacion-mensaje">Tu pedido ha sido procesado correctamente y está siendo preparado.</p>
+        
+        <div class="pedido-info">
+            <p><strong>📦 Número de Pedido:</strong> {{ pedido_numero }}</p>
+            <p><strong>💰 Total Pagado:</strong> ${{ "%.2f"|format(pedido_total) }}</p>
+            <p><strong>👤 Cliente:</strong> {{ session.usuario }}</p>
+            <p><strong>📅 Fecha:</strong> {{ now.strftime('%d/%m/%Y %H:%M') }}</p>
+        </div>
+        
+        <div class="confirmacion-acciones">
+            <a href="{{ url_for('index') }}" class="btn-seguir-comprando">🛍️ Seguir Comprando</a>
+        </div>
+        
+        <div class="info-mongo">
+            <h3>📊 Información almacenada en MongoDB Atlas</h3>
+            <p><strong>Base de datos:</strong> abarrote_dunososa</p>
+            <p><strong>Colecciones utilizadas:</strong></p>
+            <ul>
+                <li><strong>usuarios:</strong> {{ session.usuario }} (tú)</li>
+                <li><strong>pedidos:</strong> Pedido {{ pedido_numero }} guardado</li>
+            </ul>
+            <p class="mongo-status">✅ Los datos de tu pedido han sido guardados exitosamente en la nube</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
