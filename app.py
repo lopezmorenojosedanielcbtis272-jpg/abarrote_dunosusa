@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 from flask_pymongo import PyMongo
 from datetime import datetime
 import os
@@ -7,10 +7,6 @@ app = Flask(__name__)
 app.secret_key = os.environ.get("FLASK_SECRET", "dev-secret")
 
 MONGO_URI = os.environ.get("MONGO_URI", "mongodb+srv://lopezmorenojosedanielcbtis272_db_user:admin123@cluster0.ajwpjn1.mongodb.net/abarrote_dunososa?retryWrites=true&w=majority")
-
-# Configuración para imágenes
-app.config['UPLOAD_FOLDER'] = 'static/img'
-app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'gif'}
 
 # Configurar MongoDB URI para Flask-PyMongo
 app.config["MONGO_URI"] = MONGO_URI
@@ -22,7 +18,6 @@ try:
     print("✅ Conectado a MongoDB Atlas exitosamente")
 except Exception as e:
     print(f"❌ Error conectando a MongoDB Atlas: {e}")
-    # Fallback to local MongoDB
     app.config["MONGO_URI"] = "mongodb://localhost:27017/abarrote_dunososa"
     mongo = PyMongo(app)
 
@@ -54,10 +49,39 @@ def init_database():
     except Exception as e:
         print(f"⚠️  Error creando índices: {e}")
 
+# Página principal temporal sin plantillas
 @app.route('/')
 def index():
-    return render_template('index.html', productos=productos, usuario=session.get('usuario'))
+    html = """
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Abarrote Duñosusa</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    </head>
+    <body>
+        <nav class="navbar navbar-dark bg-primary">
+            <div class="container">
+                <a class="navbar-brand" href="/">🏪 Abarrote Duñosusa</a>
+            </div>
+        </nav>
+        
+        <div class="container mt-4">
+            <h1>Bienvenido a Abarrote Duñosusa</h1>
+            <p>La aplicación está funcionando correctamente.</p>
+            <p><strong>Estado de MongoDB:</strong> ✅ Conectado</p>
+            
+            <div class="mt-4">
+                <a href="/registro" class="btn btn-primary">Registrarse</a>
+                <a href="/api/productos" class="btn btn-outline-primary">Ver Productos (API)</a>
+            </div>
+        </div>
+    </body>
+    </html>
+    """
+    return html
 
+# Página de registro temporal
 @app.route('/registro', methods=['GET', 'POST'])
 def registro():
     if request.method == 'POST':
@@ -66,7 +90,7 @@ def registro():
         password = request.form['password']
         
         if mongo.db.usuarios.find_one({'email': email}):
-            return render_template('registro.html', error="El usuario ya existe")
+            return "El usuario ya existe. <a href='/registro'>Volver</a>"
         
         mongo.db.usuarios.insert_one({
             'nombre': nombre,
@@ -79,7 +103,54 @@ def registro():
         session['carrito'] = []
         return redirect(url_for('index'))
     
-    return render_template('registro.html')
+    html = """
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Registro - Abarrote Duñosusa</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    </head>
+    <body>
+        <nav class="navbar navbar-dark bg-primary">
+            <div class="container">
+                <a class="navbar-brand" href="/">🏪 Abarrote Duñosusa</a>
+            </div>
+        </nav>
+        
+        <div class="container mt-4">
+            <div class="row justify-content-center">
+                <div class="col-md-6">
+                    <h2>Registrarse</h2>
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label class="form-label">Nombre completo</label>
+                            <input type="text" name="nombre" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" name="email" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Contraseña</label>
+                            <input type="password" name="password" class="form-control" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Registrarse</button>
+                    </form>
+                    <div class="text-center mt-3">
+                        <a href="/">¿Ya tienes cuenta? Inicia sesión</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+    </html>
+    """
+    return html
+
+# API para ver productos (temporal)
+@app.route('/api/productos')
+def api_productos():
+    return jsonify(productos)
 
 @app.route('/login', methods=['POST'])
 def login():
@@ -93,7 +164,7 @@ def login():
         session['carrito'] = session.get('carrito', [])
         return redirect(url_for('index'))
     else:
-        return render_template('index.html', productos=productos, error="Credenciales incorrectas")
+        return "Credenciales incorrectas. <a href='/'>Volver</a>"
 
 @app.route('/logout')
 def logout():
@@ -140,7 +211,7 @@ def agregar_carrito():
         session['carrito'] = carrito
         session.modified = True
     
-    return redirect(url_for('ver_carrito'))
+    return "Producto agregado al carrito. <a href='/'>Volver</a>"
 
 @app.route('/carrito')
 def ver_carrito():
@@ -149,100 +220,31 @@ def ver_carrito():
     
     carrito = session.get('carrito', [])
     total = sum(item['precio'] * item['cantidad'] for item in carrito)
-    return render_template('carrito.html', carrito=carrito, total=total)
-
-@app.route('/actualizar_carrito', methods=['POST'])
-def actualizar_carrito():
-    producto_id = int(request.form['producto_id'])
-    nueva_cantidad = int(request.form['cantidad'])
     
-    carrito = session.get('carrito', [])
-    
-    if nueva_cantidad <= 0:
-        carrito = [item for item in carrito if item['id'] != producto_id]
-    else:
-        for item in carrito:
-            if item['id'] == producto_id:
-                item['cantidad'] = nueva_cantidad
-                break
-    
-    session['carrito'] = carrito
-    session.modified = True
-    return redirect(url_for('ver_carrito'))
-
-@app.route('/vaciar_carrito')
-def vaciar_carrito():
-    session['carrito'] = []
-    session.modified = True
-    return redirect(url_for('ver_carrito'))
-
-@app.route('/procesar_pago', methods=['POST'])
-def procesar_pago():
-    if 'usuario' not in session:
-        return redirect(url_for('registro'))
-    
-    carrito = session.get('carrito', [])
-    
-    if not carrito:
-        return redirect(url_for('ver_carrito'))
-    
-    total = sum(item['precio'] * item['cantidad'] for item in carrito)
-    
-    pedido = {
-        'usuario': session['usuario'],
-        'productos': carrito,
-        'total': total,
-        'fecha_pedido': datetime.now(),
-        'estado': 'completado',
-        'numero_pedido': f"PED-{datetime.now().strftime('%Y%m%d%H%M%S')}"
-    }
-    
-    try:
-        resultado = mongo.db.pedidos.insert_one(pedido)
-        pedido_id = str(resultado.inserted_id)
+    html = f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Carrito - Abarrote Duñosusa</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    </head>
+    <body>
+        <nav class="navbar navbar-dark bg-primary">
+            <div class="container">
+                <a class="navbar-brand" href="/">🏪 Abarrote Duñosusa</a>
+            </div>
+        </nav>
         
-        session['carrito'] = []
-        session.modified = True
-        
-        session['ultimo_pedido_id'] = pedido_id
-        session['ultimo_pedido_numero'] = pedido['numero_pedido']
-        session['ultimo_pedido_total'] = total
-        
-        return redirect(url_for('confirmacion_pago'))
-        
-    except Exception as e:
-        return redirect(url_for('ver_carrito'))
-
-@app.route('/confirmacion_pago')
-def confirmacion_pago():
-    if 'usuario' not in session:
-        return redirect(url_for('registro'))
-    
-    pedido_id = session.get('ultimo_pedido_id')
-    pedido_numero = session.get('ultimo_pedido_numero')
-    pedido_total = session.get('ultimo_pedido_total')
-    
-    return render_template('confirmacion_pago.html', 
-                         pedido_id=pedido_id,
-                         pedido_numero=pedido_numero,
-                         pedido_total=pedido_total,
-                         now=datetime.now())
-
-@app.route('/buscar', methods=['POST'])
-def buscar():
-    busqueda = request.form['busqueda'].lower()
-    productos_filtrados = {
-        "bebidas": [],
-        "detergentes": [], 
-        "sabritas": []
-    }
-    
-    for categoria, productos_cat in productos.items():
-        for producto in productos_cat:
-            if busqueda in producto['nombre'].lower():
-                productos_filtrados[categoria].append(producto)
-    
-    return render_template('index.html', productos=productos_filtrados, busqueda=busqueda)
+        <div class="container mt-4">
+            <h1>🛒 Tu Carrito</h1>
+            {"".join([f"<p>{item['nombre']} - ${item['precio']} x {item['cantidad']}</p>" for item in carrito])}
+            <h3>Total: ${total}</h3>
+            <a href="/" class="btn btn-primary">Seguir comprando</a>
+        </div>
+    </body>
+    </html>
+    """
+    return html
 
 if __name__ == '__main__':
     init_database()
